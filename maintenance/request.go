@@ -58,6 +58,34 @@ func (r *GetRequest) Method() string {
 	return http.MethodGet
 }
 
+type ChangeEndDateRequest struct {
+	client.BaseRequest
+	Id      string
+	EndDate *time.Time `json:"endDate,omitempty"`
+}
+
+func (r *ChangeEndDateRequest) Validate() error {
+	if r.Id == "" {
+		return errors.New("Maintenance ID cannot be blank.")
+	}
+	if r.EndDate == nil {
+		return errors.New("'EndDate' field cannot be empty.")
+	}
+	sub := r.EndDate.Sub(time.Now()).Minutes()
+	if sub <= 0 {
+		return errors.New("EndDate should be after the current time.")
+	}
+	return nil
+}
+
+func (r *ChangeEndDateRequest) ResourcePath() string {
+	return "/v1/maintenance/" + r.Id + "/change-end-date"
+}
+
+func (r *ChangeEndDateRequest) Method() string {
+	return http.MethodPost
+}
+
 type UpdateRequest struct {
 	client.BaseRequest
 	Id          string
